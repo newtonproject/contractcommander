@@ -152,16 +152,16 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 
 			}
 
-			outByte, err := cli.view(method, inputArgs...)
-			if err != nil {
-				fmt.Printf("Error: view function error(%v)\n", err)
-				return
-			}
 			//if !force && len(outByte) == 0 {
 			//	fmt.Println("Function always returns null")
 			//	return
 			//}
 			if view {
+				outByte, err := cli.view(method, inputArgs...)
+				if err != nil {
+					fmt.Printf("Error1: view function error(%v)\n", err)
+					return
+				}
 				if len(outByte) == 0 {
 					fmt.Println("Function always returns null")
 					return
