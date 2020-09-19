@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"math/big"
 	"reflect"
 	"strings"
@@ -87,6 +88,72 @@ func (cli *CLI) deploySol(solFlag, contractName string, args []string, solc stri
 	}
 
 	return fmt.Errorf("no the given contract name, name list: %v", names[:])
+}
+
+func (cli *CLI) deploySolFromBinAndABI(binFile, abiFile string, args []string) error {
+
+	binByteHex, err := ioutil.ReadFile(binFile)
+	if err != nil {
+		return err
+	}
+	binByte := common.FromHex(string(binByteHex))
+	if len(binByte) == 0 {
+		return errors.New("bin bytes error")
+	}
+
+	abiByte, err := ioutil.ReadFile(abiFile)
+	if err != nil {
+		return err
+	}
+
+	parsed, err := abi.JSON(strings.NewReader(string(abiByte)))
+	if err != nil {
+		return err
+	}
+	constructorArgs, err := getConstructorArgs(parsed.Constructor.Inputs, args)
+	if err != nil {
+		if len(parsed.Constructor.Inputs) > 0 {
+			var argName []string
+			for _, input := range parsed.Constructor.Inputs {
+				argName = append(argName, input.Name+" "+input.Type.String())
+			}
+			return fmt.Errorf("%v(%v)", err.Error(), strings.Join(argName, ", "))
+		}
+		return err
+
+	}
+
+	if len(constructorArgs) > 0 {
+		fmt.Printf("The contract will be deployed with args as follow:\n")
+		func(inputs abi.Arguments, constructorArgs []interface{}) {
+			if len(inputs) != len(constructorArgs) {
+				fmt.Println("get args error")
+				return
+			}
+			for i, input := range inputs {
+				if input.Type.T == abi.AddressTy {
+					fmt.Printf("\t%v(%v): %v\n", input.Name, input.Type, constructorArgs[i].(common.Address).String())
+				} else if addressSlice, ok := constructorArgs[i].([]common.Address); ok {
+					var addressArray []string
+					for _, address := range addressSlice {
+						addressArray = append(addressArray, address.String())
+					}
+					fmt.Printf("\t%v(%v): %v\n", input.Name, input.Type, strings.Join(addressArray, ","))
+				} else {
+					fmt.Printf("\t%v(%v): %v\n", input.Name, input.Type, constructorArgs[i])
+				}
+			}
+		}(parsed.Constructor.Inputs, constructorArgs)
+	} else {
+		fmt.Printf("The contract will be deployed with no args\n")
+	}
+
+	if err := cli.deployContract(parsed, binByte, constructorArgs); err != nil {
+		return err
+	}
+
+	return nil
+
 }
 
 func getConstructorArgs(inputs abi.Arguments, args []string) ([]interface{}, error) {
