@@ -127,6 +127,18 @@ contractcommander deploy --sol SimpleToken.sol --name SimpleToken HelloToken HT 
 contractcommander deploy --sol SimpleVote.sol --name SimpleVote
 ```
 
+In order to deploy contract from abi and bin, you should file compiler source contract with `solc`:
+
+```bash
+solc --bin --abi --optimize -o out SimpleToken.sol
+```
+
+the bin and abi file will be saved to folder `out`, then deploy with contractcommander:
+
+```bash
+contractcommander deploy --bin out/SimpleToken.bin --abi out/SimpleToken.abi HelloToken HT 18 1024000000000000000000
+```
+
 ### Execute function on the NewChain
 
 ```bash
