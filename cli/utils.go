@@ -13,7 +13,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/console"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -34,10 +33,6 @@ var IsDecimalString = regexp.MustCompile(`^[1-9]\d*$|^0$|^0\.\d*$|^[1-9](\d)*\.(
 
 func showSuccess(msg string, args ...interface{}) {
 	fmt.Printf(msg+"\n", args...)
-}
-
-func showError(fields logrus.Fields, msg string, args ...interface{}) {
-	logrus.WithFields(fields).Errorf(msg, args...)
 }
 
 // getPassPhrase retrieves the password associated with an account,
