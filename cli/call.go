@@ -69,7 +69,7 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 					} else if arg == "int" {
 						arg = "int256"
 					}
-					argType, err := abi.NewType(arg, nil)
+					argType, err := abi.NewType(arg, "",nil)
 					if err != nil {
 						fmt.Println(err)
 						return
@@ -107,7 +107,7 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 						outTypeStr = "int256"
 					}
 
-					outType, err := abi.NewType(outTypeStr, nil)
+					outType, err := abi.NewType(outTypeStr, "",nil)
 					if err != nil {
 						fmt.Println(err)
 						return
@@ -171,7 +171,15 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 				return
 			}
 
-			opts, err := cli.getTransactOpts("")
+			var gasLimit uint64
+			if cmd.Flags().Changed("gasLimit") {
+				gasLimit, err = cmd.Flags().GetUint64("gasLimit")
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+			}
+			opts, err := cli.getTransactOpts("", gasLimit)
 			if err != nil {
 				fmt.Println("Error: ", err)
 				return
@@ -179,6 +187,20 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 			ctx := context.Background()
 			opts.Context = ctx
 			opts.Value = amountWei
+			if cmd.Flags().Changed("gasPrice") {
+				gasPriceStr, err := cmd.Flags().GetString("gasPrice")
+				if err != nil {
+					fmt.Println("Flags GetString error: ", err)
+					return
+				}
+				gasPrice, err := getAmountWei(gasPriceStr, "NEW")
+				if err != nil {
+					fmt.Println("getAmountWei error: ", err)
+					return
+				}
+				opts.GasPrice = gasPrice
+			}
+
 			tx, err := bContract.Transact(opts, method.Name, inputArgs...)
 			if err != nil {
 				fmt.Println(err)
@@ -205,6 +227,9 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 	cmd.Flags().String("value", "", "the amount of unit send to the contract address")
 	cmd.Flags().StringP("unit", "u", "NEW", fmt.Sprintf("unit for send value. %s.", DenominationString))
 
+	cmd.Flags().StringP("gasPrice", "p", "", "the gas price in ETH")
+	cmd.Flags().Uint64P("gasLimit", "g", 21000, "the gas limit")
+
 	return cmd
 }
 
@@ -214,7 +239,7 @@ func (cli *CLI) view(method abi.Method, params ...interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	input := append(method.Id(), inputTypeArgsByte...)
+	input := append(method.ID, inputTypeArgsByte...)
 	//fmt.Printf("input： 0x%x\n", input)
 
 	msg := ethereum.CallMsg{From: cli.address, To: &cli.contractAddress, Data: input}

@@ -68,6 +68,9 @@ func setupConfig(cli *CLI) error {
 	if fromAddress := viper.GetString("address"); common.IsHexAddress(fromAddress) {
 		cli.address = common.HexToAddress(fromAddress)
 	}
+	if walletPassword := viper.GetString("WalletPassword"); walletPassword != "" {
+		cli.walletPassword = walletPassword
+	}
 
 	return err
 }

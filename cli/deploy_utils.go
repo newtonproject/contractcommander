@@ -182,7 +182,7 @@ func getValueByAbiType(t abi.Type, value string) (interface{}, error) {
 	switch t.T {
 	case abi.SliceTy:
 		valueSlice := strings.Split(value, ",")
-		refSlice := reflect.MakeSlice(t.Type, len(valueSlice), len(valueSlice))
+		refSlice := reflect.MakeSlice(t.TupleType, len(valueSlice), len(valueSlice))
 		for i, v := range valueSlice {
 			ret, err := getValueByAbiType(*t.Elem, v)
 			if err != nil {
@@ -193,7 +193,7 @@ func getValueByAbiType(t abi.Type, value string) (interface{}, error) {
 		return refSlice.Interface(), nil
 	case abi.ArrayTy:
 		valueSlice := strings.Split(value, ",")
-		refSlice := reflect.New(t.Type).Elem()
+		refSlice := reflect.New(t.TupleType).Elem()
 		for i, v := range valueSlice {
 			ret, err := getValueByAbiType(*t.Elem, v)
 			if err != nil {
@@ -206,7 +206,7 @@ func getValueByAbiType(t abi.Type, value string) (interface{}, error) {
 		return value, nil
 	case abi.IntTy, abi.UintTy:
 		if ret, ok := big.NewInt(0).SetString(value, 10); ok {
-			switch t.Type.Kind() {
+			switch t.TupleType.Kind() {
 			case reflect.Ptr: // *big.Int
 				return ret, nil
 			case reflect.Int:
@@ -257,7 +257,7 @@ func getValueByAbiType(t abi.Type, value string) (interface{}, error) {
 		if size > t.Size {
 			size = t.Size
 		}
-		array := reflect.New(t.Type).Elem()
+		array := reflect.New(t.TupleType).Elem()
 		reflect.Copy(array, reflect.ValueOf(ret[0:size]))
 		return array.Interface(), nil
 	case abi.FunctionTy:
@@ -266,11 +266,11 @@ func getValueByAbiType(t abi.Type, value string) (interface{}, error) {
 		return nil, fmt.Errorf("unknown type %v", t.T)
 	}
 
-	return nil, fmt.Errorf("get value %s as type %v error", value, t.Type.String())
+	return nil, fmt.Errorf("get value %s as type %v error", value, t.TupleType.String())
 }
 
 func (cli *CLI) deployContract(parsed abi.ABI, bytecode []byte, params []interface{}) error {
-	opts, err := cli.getTransactOpts("")
+	opts, err := cli.getTransactOpts("", 0)
 	if err != nil {
 		return err
 	}

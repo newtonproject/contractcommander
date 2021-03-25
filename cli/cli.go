@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -13,6 +14,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/spf13/cobra"
 )
@@ -129,7 +132,7 @@ func (cli *CLI) buildAccount(addressStr string) error {
 	return nil
 }
 
-func (cli *CLI) getTransactOpts(address string) (*bind.TransactOpts, error) {
+func (cli *CLI) getTransactOpts(address string, gasLimit uint64) (*bind.TransactOpts, error) {
 	err := cli.buildAccount(address)
 	if err != nil {
 		return nil, err
@@ -151,19 +154,39 @@ func (cli *CLI) getTransactOpts(address string) (*bind.TransactOpts, error) {
 		cli.walletPassword, _ = getPassPhrase(prompt, false)
 	}
 
-	opts, err := bind.NewTransactor(bytes.NewReader(keyJSON), cli.walletPassword)
-	if err != nil {
-		fmt.Println("NewTransactor Error: ", err)
-		return nil, err
-	}
-
 	cli.BuildClient()
 	networkID, err := cli.client.NetworkID(context.Background())
 	if err != nil {
 		fmt.Println("NetworkID Error: ", err)
 		return nil, err
 	}
-	bind.NetworkID = networkID
+
+	json, err := ioutil.ReadAll(bytes.NewReader(keyJSON))
+	if err != nil {
+		return nil, err
+	}
+	key, err := keystore.DecryptKey(json, cli.walletPassword)
+	if err != nil {
+		return nil, err
+	}
+	keyAddr := crypto.PubkeyToAddress(key.PrivateKey.PublicKey)
+	opts := &bind.TransactOpts{
+		From: keyAddr,
+		Signer: func(address common.Address, tx *types.Transaction) (*types.Transaction, error) {
+			if address != keyAddr {
+				return nil, errors.New("not authorized to sign this account")
+			}
+			if tx.Gas() < gasLimit && tx.To() != nil {
+				tx = types.NewTransaction(tx.Nonce(), *tx.To(), tx.Value(), gasLimit, tx.GasPrice(), tx.Data())
+			}
+			signer := types.NewEIP155Signer(networkID)
+			signature, err := crypto.Sign(signer.Hash(tx).Bytes(), key.PrivateKey)
+			if err != nil {
+				return nil, err
+			}
+			return tx.WithSignature(signer, signature)
+		},
+	}
 
 	return opts, err
 }

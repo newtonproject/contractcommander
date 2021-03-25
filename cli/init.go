@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/console"
+	prompt0 "github.com/ethereum/go-ethereum/console/prompt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -20,7 +20,7 @@ func (cli *CLI) buildInitCmd() *cobra.Command {
 			fmt.Println("Initialize config file")
 
 			prompt := fmt.Sprintf("Enter file in which to save (%s): ", defaultConfigFile)
-			configPath, err := console.Stdin.PromptInput(prompt)
+			configPath, err := prompt0.Stdin.PromptInput(prompt)
 			if err != nil {
 				fmt.Println("PromptInput err:", err)
 			}
@@ -31,7 +31,7 @@ func (cli *CLI) buildInitCmd() *cobra.Command {
 
 			walletPathV := viper.GetString("walletPath")
 			prompt = fmt.Sprintf("Enter the wallet storage directory (%s): ", walletPathV)
-			cli.walletPath, err = console.Stdin.PromptInput(prompt)
+			cli.walletPath, err = prompt0.Stdin.PromptInput(prompt)
 			if err != nil {
 				fmt.Println("PromptInput err:", err)
 			}
@@ -42,7 +42,7 @@ func (cli *CLI) buildInitCmd() *cobra.Command {
 
 			rpcURLV := viper.GetString("rpcURL")
 			prompt = fmt.Sprintf("Enter geth json rpc or ipc url (%s): ", rpcURLV)
-			cli.rpcURL, err = console.Stdin.PromptInput(prompt)
+			cli.rpcURL, err = prompt0.Stdin.PromptInput(prompt)
 			if err != nil {
 				fmt.Println("PromptInput err:", err)
 			}
@@ -53,7 +53,7 @@ func (cli *CLI) buildInitCmd() *cobra.Command {
 
 			faucet := cli.rpcURL
 			prompt = fmt.Sprintf("Enter url of faucet (%s): ", faucet)
-			cli.faucet, err = console.Stdin.PromptInput(prompt)
+			cli.faucet, err = prompt0.Stdin.PromptInput(prompt)
 			if err != nil {
 				fmt.Println("PromptInput err:", err)
 			}
@@ -63,7 +63,7 @@ func (cli *CLI) buildInitCmd() *cobra.Command {
 			viper.Set("faucet", cli.faucet)
 
 			prompt = fmt.Sprintf("Create a default account or not: [Y/n] ")
-			createNewAddress, err := console.Stdin.PromptInput(prompt)
+			createNewAddress, err := prompt0.Stdin.PromptInput(prompt)
 			if err != nil {
 				fmt.Println("PromptInput err:", err)
 			}

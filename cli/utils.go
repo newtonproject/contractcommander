@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/console"
+	prompt0 "github.com/ethereum/go-ethereum/console/prompt"
 )
 
 var (
@@ -42,12 +42,12 @@ func getPassPhrase(prompt string, confirmation bool) (string, error) {
 	if prompt != "" {
 		fmt.Println(prompt)
 	}
-	password, err := console.Stdin.PromptPassword("Enter passphrase (empty for no passphrase): ")
+	password, err := prompt0.Stdin.PromptPassword("Enter passphrase (empty for no passphrase): ")
 	if err != nil {
 		return "", err
 	}
 	if confirmation {
-		confirm, err := console.Stdin.PromptPassword("Enter same passphrase again: ")
+		confirm, err := prompt0.Stdin.PromptPassword("Enter same passphrase again: ")
 		if err != nil {
 			return "", err
 		}
