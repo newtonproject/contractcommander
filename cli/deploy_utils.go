@@ -182,7 +182,7 @@ func getValueByAbiType(t abi.Type, value string) (interface{}, error) {
 	switch t.T {
 	case abi.SliceTy:
 		valueSlice := strings.Split(value, ",")
-		refSlice := reflect.MakeSlice(t.TupleType, len(valueSlice), len(valueSlice))
+		refSlice := reflect.MakeSlice(t.GetType(), len(valueSlice), len(valueSlice))
 		for i, v := range valueSlice {
 			ret, err := getValueByAbiType(*t.Elem, v)
 			if err != nil {
@@ -193,7 +193,7 @@ func getValueByAbiType(t abi.Type, value string) (interface{}, error) {
 		return refSlice.Interface(), nil
 	case abi.ArrayTy:
 		valueSlice := strings.Split(value, ",")
-		refSlice := reflect.New(t.TupleType).Elem()
+		refSlice := reflect.New(t.GetType()).Elem()
 		for i, v := range valueSlice {
 			ret, err := getValueByAbiType(*t.Elem, v)
 			if err != nil {
@@ -206,7 +206,7 @@ func getValueByAbiType(t abi.Type, value string) (interface{}, error) {
 		return value, nil
 	case abi.IntTy, abi.UintTy:
 		if ret, ok := big.NewInt(0).SetString(value, 10); ok {
-			switch t.TupleType.Kind() {
+			switch t.GetType().Kind() {
 			case reflect.Ptr: // *big.Int
 				return ret, nil
 			case reflect.Int:

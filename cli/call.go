@@ -25,7 +25,6 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 			cli.Name, cli.Name, cli.Name, cli.Name),
 		Run: func(cmd *cobra.Command, args []string) {
 			view, _ := cmd.Flags().GetBool("view")
-			//force, _ := cmd.Flags().GetBool("force")
 
 			unit, err := cmd.Flags().GetString("unit")
 			if err != nil {
@@ -48,13 +47,9 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 				return
 			}
 
-			method := abi.Method{
-				Name: args[0],
-			}
-
 			var valueArgs []string
+			var inputTypeArgs abi.Arguments
 			if len(args) > 1 {
-				var inputTypeArgs abi.Arguments
 
 				argsLen := len(args)
 				if argsLen%2 == 0 {
@@ -69,7 +64,7 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 					} else if arg == "int" {
 						arg = "int256"
 					}
-					argType, err := abi.NewType(arg, "",nil)
+					argType, err := abi.NewType(arg, "", nil)
 					if err != nil {
 						fmt.Println(err)
 						return
@@ -78,10 +73,9 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 					inputTypeArgs = append(inputTypeArgs, argArg)
 					valueArgs = append(valueArgs, args[i+1])
 				}
-
-				method.Inputs = inputTypeArgs
 			}
 
+			var outTypeArgs abi.Arguments
 			if cmd.Flags().Changed("out") {
 				if !view {
 					fmt.Println("Error: --view not use")
@@ -94,8 +88,6 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 				}
 				outTypeList := strings.Split(outTypes, ",")
 
-				var outTypeArgs abi.Arguments
-
 				for _, outTypeStr := range outTypeList {
 					if outTypeStr[0] == '[' {
 						fmt.Println("Error: unsupported arg type:", outTypeStr)
@@ -107,7 +99,7 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 						outTypeStr = "int256"
 					}
 
-					outType, err := abi.NewType(outTypeStr, "",nil)
+					outType, err := abi.NewType(outTypeStr, "", nil)
 					if err != nil {
 						fmt.Println(err)
 						return
@@ -117,8 +109,10 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 					})
 				}
 
-				method.Outputs = outTypeArgs
 			}
+
+			name := args[0]
+			method := abi.NewMethod(name, name, abi.Function, "", false, false, inputTypeArgs, outTypeArgs)
 
 			if err := cli.BuildClient(); err != nil {
 				fmt.Println(err)
@@ -152,10 +146,6 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 
 			}
 
-			//if !force && len(outByte) == 0 {
-			//	fmt.Println("Function always returns null")
-			//	return
-			//}
 			if view {
 				outByte, err := cli.view(method, inputArgs...)
 				if err != nil {
@@ -187,6 +177,9 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 			ctx := context.Background()
 			opts.Context = ctx
 			opts.Value = amountWei
+			// if amountWei.Cmp(big.NewInt(0)) > 0 {
+			// 	method.Payable = true
+			// }
 			if cmd.Flags().Changed("gasPrice") {
 				gasPriceStr, err := cmd.Flags().GetString("gasPrice")
 				if err != nil {
@@ -240,7 +233,7 @@ func (cli *CLI) view(method abi.Method, params ...interface{}) ([]byte, error) {
 	}
 
 	input := append(method.ID, inputTypeArgsByte...)
-	//fmt.Printf("input： 0x%x\n", input)
+	// fmt.Printf("input： 0x%x\n", input)
 
 	msg := ethereum.CallMsg{From: cli.address, To: &cli.contractAddress, Data: input}
 	ctx := context.TODO() // context.Background()

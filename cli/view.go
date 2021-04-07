@@ -15,9 +15,8 @@ func (cli *CLI) buildViewCmd() *cobra.Command {
 		DisableFlagsInUseLine: true,
 		Args:                  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			method := abi.Method{
-				Name: args[0],
-			}
+			name := args[0]
+			method := abi.NewMethod(name, name, abi.Function, "view", false, false, nil, nil)
 
 			var valueArgs []string
 			if len(args) > 1 {

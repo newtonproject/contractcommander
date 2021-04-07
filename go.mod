@@ -3,6 +3,7 @@ module github.com/newtonproject/contractcommander
 go 1.14
 
 require (
+	github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46 // indirect
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20200609010056-95bcf8053598 // indirect
 	github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6 // indirect
@@ -10,6 +11,7 @@ require (
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/ethereum/go-ethereum v1.10.1
 	github.com/fatih/color v1.9.0 // indirect
+	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/karalabe/hid v1.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect
