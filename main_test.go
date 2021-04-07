@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sirupsen/logrus"
 	"github.com/newtonproject/contractcommander/cli"
+	"github.com/sirupsen/logrus"
 )
 
 // test address

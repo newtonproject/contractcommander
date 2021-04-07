@@ -9,9 +9,9 @@ import (
 
 func (cli *CLI) buildFaucetCmd() *cobra.Command {
 	faucetCmd := &cobra.Command{
-		Use:   "faucet [address]",
-		Short: "Get free money for address",
-		Args:  cobra.MinimumNArgs(1),
+		Use:                   "faucet [address]",
+		Short:                 "Get free money for address",
+		Args:                  cobra.MinimumNArgs(1),
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			var addressList []common.Address

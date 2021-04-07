@@ -31,7 +31,7 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 				fmt.Println("Error: ", err)
 				return
 			}
-			if !stringInSlice(unit, DenominationList) {
+			if !stringInSlice(unit, UnitList) {
 				fmt.Println("Error: ", errIllegalUnit)
 				return
 			}
@@ -186,7 +186,7 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 					fmt.Println("Flags GetString error: ", err)
 					return
 				}
-				gasPrice, err := getAmountWei(gasPriceStr, "NEW")
+				gasPrice, err := getAmountWei(gasPriceStr, UnitETH)
 				if err != nil {
 					fmt.Println("getAmountWei error: ", err)
 					return
@@ -218,7 +218,7 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 	cmd.Flags().StringP("out", "o", "", "the out type list of the method, spilt by ',', only use with --view")
 	// cmd.Flags().Bool("force", false, "force execute function")
 	cmd.Flags().String("value", "", "the amount of unit send to the contract address")
-	cmd.Flags().StringP("unit", "u", "NEW", fmt.Sprintf("unit for send value. %s.", DenominationString))
+	cmd.Flags().StringP("unit", "u", UnitETH, fmt.Sprintf("unit for send value. %s.", UnitString))
 
 	cmd.Flags().StringP("gasPrice", "p", "", "the gas price in ETH")
 	cmd.Flags().Uint64P("gasLimit", "g", 21000, "the gas limit")

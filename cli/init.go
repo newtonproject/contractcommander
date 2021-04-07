@@ -12,8 +12,8 @@ import (
 
 func (cli *CLI) buildInitCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "init",
-		Short: "Initialize config file",
+		Use:                   "init",
+		Short:                 "Initialize config file",
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 

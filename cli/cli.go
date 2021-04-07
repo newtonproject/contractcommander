@@ -55,6 +55,9 @@ func NewCLI() *CLI {
 		version = fmt.Sprintf("%s-%s", version, buildDate)
 	}
 
+	bc, _ := getBlockChain()
+	version = fmt.Sprintf("%s-%s", version, bc.String())
+
 	cli := &CLI{
 		Name:       "contractcommander",
 		rootCmd:    nil,

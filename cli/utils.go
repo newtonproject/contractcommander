@@ -67,20 +67,12 @@ func stringInSlice(str string, list []string) bool {
 	return false
 }
 
-// DenominationString is for denomination string
-//const DenominationString = "Available unit: Wei, Ada, Babbage, Shannon, Szabo, Finney, Ether, Einstein, Douglas, Gwei"
-const DenominationString = "Available unit: NEW, WEI"
-
-// DenominationList is array for denomination string
-// var DenominationList = []string{"Wei", "Ada", "Babbage", "Shannon", "Szabo", "Finney", "Ether", "Einstein", "Douglas", "Gwei"}
-var DenominationList = []string{"NEW", "WEI"}
-
 func getAmountWei(amountStr, unit string) (*big.Int, error) {
 	if amountStr == "" {
 		return big.NewInt(0), nil
 	}
 	switch unit {
-	case "NEW":
+	case UnitETH:
 		index := strings.IndexByte(amountStr, '.')
 		if index <= 0 {
 			amountWei, ok := new(big.Int).SetString(amountStr, 10)
@@ -108,7 +100,7 @@ func getAmountWei(amountStr, unit string) (*big.Int, error) {
 		}
 
 		return new(big.Int).Add(amountStrIntBig, amountStrDecBig), nil
-	case "WEI":
+	case UnitWEI:
 		amountWei, ok := new(big.Int).SetString(amountStr, 10)
 		if !ok {
 			return nil, errBigSetString
@@ -121,16 +113,16 @@ func getAmountWei(amountStr, unit string) (*big.Int, error) {
 
 func getWeiAmountTextUnitByUnit(amount *big.Int, unit string) string {
 	if amount == nil {
-		return "0 WEI"
+		return fmt.Sprintf("0 %v", UnitWEI)
 	}
 	amountStr := amount.String()
 	amountStrLen := len(amountStr)
 	if unit == "" {
 		if amountStrLen <= 18 {
 			// show in WEI
-			unit = "WEI"
+			unit = UnitWEI
 		} else {
-			unit = "NEW"
+			unit = UnitETH
 		}
 	}
 
@@ -145,7 +137,7 @@ func getWeiAmountTextByUnit(amount *big.Int, unit string) string {
 	amountStrLen := len(amountStr)
 
 	switch unit {
-	case "NEW":
+	case UnitETH:
 		var amountStrDec, amountStrInt string
 		if amountStrLen <= 18 {
 			amountStrDec = strings.Repeat("0", 18-amountStrLen) + amountStr
@@ -160,7 +152,7 @@ func getWeiAmountTextByUnit(amount *big.Int, unit string) string {
 		}
 		return amountStrInt + "." + amountStrDec
 
-	case "WEI":
+	case UnitWEI:
 		return amountStr
 	}
 

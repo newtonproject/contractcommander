@@ -29,7 +29,7 @@ func (cli *CLI) buildViewCmd() *cobra.Command {
 				}
 
 				for i := 1; i < argsLen-1; i += 2 {
-					argType, err := abi.NewType(args[i], "",nil)
+					argType, err := abi.NewType(args[i], "", nil)
 					if err != nil {
 						fmt.Println(err)
 						return
@@ -62,7 +62,7 @@ func (cli *CLI) buildViewCmd() *cobra.Command {
 						outTypeStr = "int256"
 					}
 
-					outType, err := abi.NewType(outTypeStr, "",nil)
+					outType, err := abi.NewType(outTypeStr, "", nil)
 					if err != nil {
 						fmt.Println(err)
 						return

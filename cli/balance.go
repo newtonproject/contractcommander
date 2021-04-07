@@ -7,21 +7,20 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/spf13/cobra"
 )
 
 func (cli *CLI) buildBalanceCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "balance [--unit NEW|WEI] [address1] [address2]...",
-		Short: "Get balance of address",
-		Args:  cobra.MinimumNArgs(0),
+		Use:                   "balance [--unit NEW|WEI] [address1] [address2]...",
+		Short:                 "Get balance of address",
+		Args:                  cobra.MinimumNArgs(0),
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 
 			unit, _ := cmd.Flags().GetString("unit")
-			if unit != "" && !stringInSlice(unit, DenominationList) {
-				fmt.Printf("Unit(%s) for invalid. %s.\n", unit, DenominationString)
+			if unit != "" && !stringInSlice(unit, UnitList) {
+				fmt.Printf("Unit(%s) for invalid. %s.\n", unit, UnitString)
 				fmt.Fprint(os.Stderr, cmd.UsageString())
 				return
 			}
@@ -57,7 +56,7 @@ func (cli *CLI) buildBalanceCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringP("unit", "u", "", fmt.Sprintf("unit for balance. %s.", DenominationString))
+	cmd.Flags().StringP("unit", "u", "", fmt.Sprintf("unit for balance. %s.", UnitString))
 
 	return cmd
 }
