@@ -16,11 +16,11 @@ func (cli *CLI) buildViewCmd() *cobra.Command {
 		Args:                  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			name := args[0]
-			method := abi.NewMethod(name, name, abi.Function, "view", false, false, nil, nil)
+
 
 			var valueArgs []string
+			var inputTypeArgs abi.Arguments
 			if len(args) > 1 {
-				var inputTypeArgs abi.Arguments
 
 				argsLen := len(args)
 				if argsLen%2 == 0 {
@@ -38,10 +38,9 @@ func (cli *CLI) buildViewCmd() *cobra.Command {
 					inputTypeArgs = append(inputTypeArgs, argArg)
 					valueArgs = append(valueArgs, args[i+1])
 				}
-
-				method.Inputs = inputTypeArgs
 			}
 
+			var outTypeArgs abi.Arguments
 			if cmd.Flags().Changed("out") {
 				outTypes, err := cmd.Flags().GetString("out")
 				if err != nil {
@@ -50,7 +49,6 @@ func (cli *CLI) buildViewCmd() *cobra.Command {
 				}
 				outTypeList := strings.Split(outTypes, ",")
 
-				var outTypeArgs abi.Arguments
 				for _, outTypeStr := range outTypeList {
 					if outTypeStr[0] == '[' {
 						fmt.Println("Error: unsupported arg type:", outTypeStr)
@@ -71,9 +69,9 @@ func (cli *CLI) buildViewCmd() *cobra.Command {
 						Type: outType,
 					})
 				}
-
-				method.Outputs = outTypeArgs
 			}
+
+			method := abi.NewMethod(name, name, abi.Function, "view", false, false, inputTypeArgs, outTypeArgs)
 
 			// input args
 			inputArgs, err := getConstructorArgs(method.Inputs, valueArgs)
