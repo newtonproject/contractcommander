@@ -257,7 +257,7 @@ func getValueByAbiType(t abi.Type, value string) (interface{}, error) {
 		if size > t.Size {
 			size = t.Size
 		}
-		array := reflect.New(t.TupleType).Elem()
+		array := reflect.New(t.GetType()).Elem()
 		reflect.Copy(array, reflect.ValueOf(ret[0:size]))
 		return array.Interface(), nil
 	case abi.FunctionTy:
@@ -266,7 +266,7 @@ func getValueByAbiType(t abi.Type, value string) (interface{}, error) {
 		return nil, fmt.Errorf("unknown type %v", t.T)
 	}
 
-	return nil, fmt.Errorf("get value %s as type %v error", value, t.TupleType.String())
+	return nil, fmt.Errorf("get value %s as type %v error", value, t.GetType().String())
 }
 
 func (cli *CLI) deployContract(parsed abi.ABI, bytecode []byte, params []interface{}) error {
