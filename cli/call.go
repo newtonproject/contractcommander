@@ -201,14 +201,17 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 			}
 			fmt.Println(tx.Hash().String())
 
-			fmt.Printf("Transaction waiting to be mined: 0x%x\n", tx.Hash())
-			if _, err := bind.WaitMined(ctx, client, tx); err != nil {
-				fmt.Printf("Error: wait tx mined error(%v)\n", err)
-				return
-			}
-			showTransactionReceipt(cli.rpcURL, tx.Hash().String())
+			nowait, _ := cmd.Flags().GetBool("nowait")
+			if !nowait {
+				fmt.Printf("Transaction waiting to be mined: 0x%x\n", tx.Hash())
+				if _, err := bind.WaitMined(ctx, client, tx); err != nil {
+					fmt.Printf("Error: wait tx mined error(%v)\n", err)
+					return
+				}
+				showTransactionReceipt(cli.rpcURL, tx.Hash().String())
 
-			fmt.Println("Call function success")
+				fmt.Println("Call function success")
+			}
 
 			return
 		},
@@ -222,6 +225,8 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 
 	cmd.Flags().StringP("gasPrice", "p", "", "the gas price in ETH")
 	cmd.Flags().Uint64P("gasLimit", "g", 21000, "the gas limit")
+
+	cmd.Flags().Bool("nowait", false, "not to wait tx to be mint")
 
 	return cmd
 }
