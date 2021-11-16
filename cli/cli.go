@@ -161,9 +161,9 @@ func (cli *CLI) getTransactOpts(address string, gasLimit uint64) (*bind.Transact
 	}
 
 	cli.BuildClient()
-	networkID, err := cli.client.NetworkID(context.Background())
+	chainId, err := cli.client.ChainID(context.Background())
 	if err != nil {
-		fmt.Println("NetworkID Error: ", err)
+		fmt.Println("ChainID Error: ", err)
 		return nil, err
 	}
 
@@ -185,7 +185,7 @@ func (cli *CLI) getTransactOpts(address string, gasLimit uint64) (*bind.Transact
 			if tx.Gas() < gasLimit && tx.To() != nil {
 				tx = types.NewTransaction(tx.Nonce(), *tx.To(), tx.Value(), gasLimit, tx.GasPrice(), tx.Data())
 			}
-			signer := types.NewEIP155Signer(networkID)
+			signer := types.NewEIP155Signer(chainId)
 			signature, err := crypto.Sign(signer.Hash(tx).Bytes(), key.PrivateKey)
 			if err != nil {
 				return nil, err
