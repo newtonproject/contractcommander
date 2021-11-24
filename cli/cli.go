@@ -47,7 +47,7 @@ type CLI struct {
 
 // NewCLI returns an initialized CLI
 func NewCLI() *CLI {
-	version := "v0.6.3"
+	version := "v0.6.4"
 	if buildCommit != "" {
 		version = fmt.Sprintf("%s-%s", version, buildCommit)
 	}
