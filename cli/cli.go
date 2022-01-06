@@ -185,7 +185,7 @@ func (cli *CLI) getTransactOpts(address string, gasLimit uint64) (*bind.Transact
 			if tx.Gas() < gasLimit && tx.To() != nil {
 				tx = types.NewTransaction(tx.Nonce(), *tx.To(), tx.Value(), gasLimit, tx.GasPrice(), tx.Data())
 			}
-			signer := types.NewEIP155Signer(chainId)
+			signer := types.NewLondonSigner(chainId)
 			signature, err := crypto.Sign(signer.Hash(tx).Bytes(), key.PrivateKey)
 			if err != nil {
 				return nil, err

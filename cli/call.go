@@ -194,6 +194,33 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 				opts.GasPrice = gasPrice
 			}
 
+			if cmd.Flags().Changed("maxFee") {
+				maxFeeStr, err := cmd.Flags().GetString("maxFee")
+				if err != nil {
+					fmt.Println("Flags maxFee error: ", err)
+					return
+				}
+				maxFee, err := getAmountWei(maxFeeStr, UnitETH)
+				if err != nil {
+					fmt.Println("maxFee error: ", err)
+					return
+				}
+				opts.GasFeeCap = maxFee
+			}
+			if cmd.Flags().Changed("maxTip") {
+				maxTipStr, err := cmd.Flags().GetString("maxTip")
+				if err != nil {
+					fmt.Println("Flags maxTip error: ", err)
+					return
+				}
+				maxTip, err := getAmountWei(maxTipStr, UnitETH)
+				if err != nil {
+					fmt.Println("maxTip error: ", err)
+					return
+				}
+				opts.GasTipCap = maxTip
+			}
+
 			tx, err := bContract.Transact(opts, method.Name, inputArgs...)
 			if err != nil {
 				fmt.Println(err)
@@ -225,6 +252,9 @@ func (cli *CLI) buildCallCmd() *cobra.Command {
 
 	cmd.Flags().StringP("gasPrice", "p", "", "the gas price in ETH")
 	cmd.Flags().Uint64P("gasLimit", "g", 21000, "the gas limit")
+
+	cmd.Flags().String("maxFee", "", "the max gas price per gas in ETH")
+	cmd.Flags().String("maxTip", "", "the max priority gas price per gas in ETH")
 
 	cmd.Flags().Bool("nowait", false, "not to wait tx to be mint")
 
